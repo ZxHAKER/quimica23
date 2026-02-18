@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACTIVITY | ESTRUCTURAS</title>
+    <title>ACTIVITY | ESTRUCTURAS </title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -26,7 +26,6 @@
             padding: 10px;
         }
 
-        /* --- CONTENEDOR PRINCIPAL RESPONSIVO --- */
         .app-shell {
             width: 100%; max-width: 1200px;
             min-height: 90vh;
@@ -47,7 +46,6 @@
         .screen { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .hidden { display: none !important; }
 
-        /* --- GRID DE MENÚ (VERTICAL EN MÓVIL) --- */
         .modes-container { 
             display: grid; grid-template-columns: repeat(3, 1fr); 
             gap: 20px; width: 100%; margin-top: 20px;
@@ -60,7 +58,6 @@
         .mode-card h3 { font-size: 1.2rem; margin: 0 0 10px 0; color: var(--accent); }
         .mode-card p { font-size: 0.85rem; color: #94a3b8; margin: 0; }
 
-        /* --- LAYOUT DE JUEGO --- */
         .game-grid { 
             display: flex; flex-direction: row; 
             gap: 20px; width: 100%;
@@ -68,8 +65,8 @@
         
         .canvas-container { 
             flex: 1.5; background: #000; border-radius: 20px; 
-            display: flex; align-items: center; justify-content: center; min-height: 300px;
-            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center; min-height: 350px;
+            border: 1px solid var(--border); padding: 10px;
         }
 
         .side-ui { flex: 1; display: flex; flex-direction: column; gap: 15px; }
@@ -85,23 +82,25 @@
             cursor: pointer; background: linear-gradient(90deg, var(--accent-2), var(--accent)); color: white;
         }
 
-        .btn-option { background: var(--glass); border: 1px solid var(--border); color: white; padding: 10px 15px; border-radius: 10px; }
+        .btn-option { background: var(--glass); border: 1px solid var(--border); color: white; padding: 10px 15px; border-radius: 10px; cursor: pointer; }
 
-        /* --- MEDIA QUERIES CRÍTICAS PARA MÓVIL --- */
+        /* --- MODAL DE INSTRUCCIONES --- */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .modal-content {
+            background: #161b22; padding: 30px; border-radius: 25px; border: 1px solid var(--accent);
+            max-width: 500px; width: 90%; text-align: left;
+        }
+        .modal-content h2 { color: var(--accent); margin-top: 0; }
+        .modal-content ul { padding-left: 20px; color: #cbd5e1; line-height: 1.6; }
+
         @media (max-width: 850px) {
-            body { align-items: flex-start; padding: 5px; }
-            .app-shell { border-radius: 15px; min-height: 98vh; height: auto; }
-            
-            .modes-container { grid-template-columns: 1fr; } /* Menú en lista vertical */
-            
-            .game-grid { flex-direction: column; } /* Estructura arriba, controles abajo */
-            .canvas-container { min-height: 250px; flex: none; }
-            
-            h1 { font-size: 1.8rem !important; margin-bottom: 20px !important; }
-            .logo { font-size: 0.9rem; }
-            
-            header { padding: 10px; justify-content: space-around; }
-            .badge-hud { font-size: 0.7rem; padding: 5px 10px; }
+            .modes-container { grid-template-columns: 1fr; }
+            .game-grid { flex-direction: column; }
+            .canvas-container { min-height: 280px; }
         }
 
         .badge-hud { background: #000; padding: 8px 15px; border-radius: 50px; border: 1px solid var(--border); font-family: 'Fira Code'; }
@@ -109,33 +108,50 @@
 </head>
 <body>
 
+    <div id="modal-rules" class="modal hidden">
+        <div class="modal-content">
+            <h2>📜 Reglas del Juego</h2>
+            <ul>
+                <li><strong>Nomenclatura:</strong> Escribe el nombre IUPAC completo. Usa guiones para números y letras (ej: 2-metilpropano).</li>
+                <li><strong>Carbonos:</strong> Identifica si el átomo resaltado en azul es Primario, Secundario, Terciario o Cuaternario.</li>
+                <li><strong>Isomería:</strong> Compara las estructuras y elige el tipo de isómero correcto.</li>
+                <li><strong>Puntaje:</strong> +100 por acierto. Las pistas cuestan -20 puntos.</li>
+                <li><strong>Vidas:</strong> Tienes 3 Vidas. Si fallas una respuesta, pierdes una.</li>
+            </ul>
+            <button class="btn-main" style="width:100%" onclick="toggleRules()">¡ENTENDIDO!</button>
+        </div>
+    </div>
+
     <div class="app-shell">
         <header>
-            <div class="logo">QUIMICA<span>ACTIVIDAD</span></div>
+            <div class="logo">QUIMICA<span>ESTRUCTURAS</span></div>
             <div id="game-hud" style="display:none; gap:8px;">
                 <div class="badge-hud" style="color:var(--danger)">❤️ <span id="v-val">3</span></div>
                 <div class="badge-hud" style="color:var(--success)">⭐ <span id="s-val">0</span></div>
                 <div class="badge-hud" style="color:var(--accent)"><span id="l-val">1/20</span></div>
             </div>
-            <button class="btn-option" style="font-size: 0.6rem;" onclick="location.reload()">REINICIAR</button>
+            <div style="display:flex; gap: 5px;">
+                <button class="btn-option" style="font-size: 0.6rem;" onclick="toggleRules()">REGLAS</button>
+                <button class="btn-option" style="font-size: 0.6rem;" onclick="location.reload()">REINICIAR</button>
+            </div>
         </header>
 
         <section id="sc-menu" class="screen">
-            <h1 style="font-size: 2.5rem; margin: 0; font-weight: 800; color:var(--accent); text-align: center;">¡A PRACTICAR!</h1>
-            <p style="color:#94a3b8; font-size: 0.8rem; text-align: center; margin-bottom: 20px;">Grace, Mariana, Marco, Samuel</p>
+            <h1 style="font-size: 2.5rem; margin: 0; font-weight: 800; color:var(--accent); text-align: center;">¡HORA DE PRACTICAR !</h1>
+            <p style="color:#94a3b8; font-size: 0.8rem; text-align: center; margin-bottom: 20px;">Grace Fiallo, Mariana Garzon, Marco Mendoza, Samuel Santoyo.</p>
             
             <div class="modes-container">
                 <div class="mode-card" onclick="Core.start('nomen')">
                     <h3>NOMENCLATURA</h3>
-                    <p>Alcanos y Alquinos.</p>
+                    <p>Identificar la Nomenclatura de las siguientes estrcuturas.</p>
                 </div>
                 <div class="mode-card" onclick="Core.start('tipos')">
                     <h3>CARBONOS</h3>
-                    <p>Primarios a Cuaternarios.</p>
+                    <p>Identificar los tipos de carbonos.</p>
                 </div>
                 <div class="mode-card" onclick="Core.start('iso')">
                     <h3>ISOMERÍA</h3>
-                    <p>Estructuras.</p>
+                    <p>Identificar estructuras complejas </p>
                 </div>
             </div>
         </section>
@@ -146,7 +162,7 @@
                 <div class="side-ui">
                     <h2 id="quest-title" style="margin:0; font-weight: 600; font-size: 1.1rem; text-align: center;">Analiza la estructura</h2>
                     <div id="ui-input-box">
-                        <input type="text" id="ans-in" class="input-premium" placeholder="Escribe aquí..." autocomplete="off">
+                        <input type="text" id="ans-in" class="input-premium" placeholder="Ej: 3-etil-2-metilhexano" autocomplete="off">
                         <button class="btn-main" style="width:100%; margin-top:10px" onclick="Core.check()">VALIDAR</button>
                     </div>
                     <div id="ui-options-box" class="hidden" style="display:grid; grid-template-columns: 1fr; gap:8px"></div>
@@ -164,27 +180,49 @@
     </div>
 
     <script>
-        // Los datos y la lógica (Core) se mantienen intactos para no romper la funcionalidad.
+        function toggleRules() {
+            document.getElementById('modal-rules').classList.toggle('hidden');
+        }
+
         const DB = {
             nomen: [
-                { ans: ["propano"], svg: "M100,150 L150,110 L200,150", hint: "3 carbonos." },
-                { ans: ["butano"], svg: "M80,150 L130,110 L180,150 L230,110", hint: "4 carbonos." },
-                { ans: ["2-metilpropano"], svg: "M100,150 L150,110 L200,150 M150,110 L150,60", hint: "Rama en el C2." },
-                { ans: ["pentano"], svg: "M50,150 L100,110 L150,150 L200,110 L250,150", hint: "5 carbonos." },
-                { ans: ["2,2-dimetilpropano"], svg: "M120,150 L170,110 L220,150 M170,110 L170,60 M170,110 L135,85", hint: "Dos ramas en el mismo C." },
-                { ans: ["3-metilpentano"], svg: "M50,150 L100,110 L150,150 L200,110 L250,150 M150,150 L150,200", hint: "Centro de 5 carbonos." },
-                { ans: ["hexano"], svg: "M50,150 L100,110 L150,150 L200,110 L250,150 L300,110", hint: "6 carbonos." },
-                { ans: ["2,3-dimetilbutano"], svg: "M100,150 L150,110 L200,150 L250,110 M150,110 L150,60 M200,150 L200,200", hint: "Dos metilos vecinos." },
-                { ans: ["2-metilpentano"], svg: "M50,150 L100,110 L150,150 L200,110 L250,150 M100,110 L100,60", hint: "Rama cerca del inicio." },
-                { ans: ["3,3-dimetilpentano"], svg: "M50,150 L100,110 L150,150 L200,110 L250,150 M150,150 L150,100 M150,150 L150,200", hint: "Cruz en el centro." },
-                { ans: ["2-butino"], svg: "M100,150 L150,110 L220,110 L270,150", type: "triple", hint: "Triple enlace central." },
-                { ans: ["3-octino"], svg: "M30,150 L80,110 L130,150 L200,150 L270,150 L320,110 L370,150 L400,110", type: "triple", hint: "8 carbonos, triple enlace en C3." }
+                { 
+                    ans: ["4-isopropil-5-metil-2-deceno"], 
+                    svg: "M20,150 L60,110 L100,110 L140,150 L180,110 L220,150 L260,110 L300,150 L340,110 L380,150 M140,150 L140,190 L110,210 M140,190 L170,210 M180,110 L180,60", 
+                    type: "doble", 
+                    hint: "Cadena de 10 con doble enlace en C2 e isopropilo en C4." 
+                },
+                { 
+                    ans: ["3-etil-4,5-dimetilheptano"], 
+                    svg: "M50,150 L100,110 L150,150 L200,110 L250,150 L300,110 L350,150 M150,150 L150,200 L120,220 M200,110 L200,60 M250,150 L250,200", 
+                    hint: "7 carbonos, un etilo y dos metilos." 
+                },
+                { 
+                    ans: ["2,2,4-trimetilpentano"], 
+                    svg: "M80,150 L130,110 L180,150 L230,110 L280,150 M130,110 L130,60 M130,110 L90,80 M230,110 L230,60", 
+                    hint: "Cadena de 5 con 3 metilos." 
+                },
+                { 
+                    ans: ["3-etil-2,5-dimetilhexano"], 
+                    svg: "M50,120 L100,80 L150,120 L200,80 L250,120 L300,80 M100,80 L100,30 M150,120 L150,170 L180,190 M250,120 L250,170", 
+                    hint: "Hexano con etilo en el medio." 
+                },
+                { 
+                    ans: ["4-ter-butiloctano"], 
+                    svg: "M40,150 L90,110 L140,150 L190,110 L240,150 L290,110 L340,150 L390,110 M190,110 L190,60 M190,60 L160,30 M190,60 L220,30 M190,60 L190,10", 
+                    hint: "Rama con forma de cruz en C4." 
+                },
+                { 
+                    ans: ["5-isopropil-2,3-dimetilheptano"], 
+                    svg: "M50,150 L100,110 L150,150 L200,110 L250,150 L300,110 L350,150 M100,110 L100,60 M150,150 L150,200 M250,150 L250,200 L220,220 M250,200 L280,220", 
+                    hint: "Combina isopropiles y metiles." 
+                }
             ],
             tipos: Array.from({length: 20}, (_, i) => ({
                 target: [150, 110], 
                 ans: i % 4 === 0 ? "Primario" : i % 4 === 1 ? "Secundario" : i % 4 === 2 ? "Terciario" : "Cuaternario",
                 svg: "M50,150 L100,110 L150,110 L200,110 L250,150", 
-                hint: "Cuenta los vecinos directos."
+                hint: "Cuenta los carbonos directos."
             })),
             iso: Array.from({length: 20}, (_, i) => ({
                 q: i % 2 === 0 ? "¿Relación n-butano e isobutano?" : "¿Isómeros de qué tipo son?",
@@ -205,8 +243,8 @@
                 this.load();
             },
             load() {
-                const d = DB[this.m][this.i];
-                if(!d || this.i >= 20) return this.end(true);
+                const d = DB[this.m][this.i % DB[this.m].length];
+                if(this.i >= 20) return this.end(true);
                 const canvas = document.getElementById('canvas');
                 canvas.innerHTML = '';
                 document.getElementById('ans-in').value = '';
@@ -232,11 +270,8 @@
                 box.innerHTML = '';
                 opts.forEach(o => {
                     const btn = document.createElement('button');
+                    btn.className = "btn-option";
                     btn.style.padding = "15px";
-                    btn.style.background = "rgba(255,255,255,0.05)";
-                    btn.style.color = "white";
-                    btn.style.border = "1px solid var(--border)";
-                    btn.style.borderRadius = "10px";
                     btn.innerText = o;
                     btn.onclick = () => this.validate(o);
                     box.appendChild(btn);
@@ -246,30 +281,27 @@
                 const ns = "http://www.w3.org/2000/svg";
                 const svg = document.createElementNS(ns, "svg");
                 svg.setAttribute("viewBox", "0 0 450 250");
-                svg.style.width = "90%";
+                svg.style.width = "95%";
                 const p = document.createElementNS(ns, "path");
                 p.setAttribute("d", d.svg); p.setAttribute("stroke", "white");
-                p.setAttribute("stroke-width", "6"); p.setAttribute("fill", "none");
+                p.setAttribute("stroke-width", "5"); p.setAttribute("fill", "none");
                 p.setAttribute("stroke-linecap", "round");
                 svg.appendChild(p);
-                if(d.type === "triple") {
+                if(d.type === "doble") {
                     const t1 = document.createElementNS(ns, "path");
-                    t1.setAttribute("d", "M150,102 L220,102"); t1.setAttribute("stroke", "white"); t1.setAttribute("stroke-width", "2");
-                    const t2 = document.createElementNS(ns, "path");
-                    t2.setAttribute("d", "M150,118 L220,118"); t2.setAttribute("stroke", "white"); t2.setAttribute("stroke-width", "2");
-                    svg.appendChild(t1); svg.appendChild(t2);
+                    t1.setAttribute("d", "M60,102 L100,102"); t1.setAttribute("stroke", "white"); t1.setAttribute("stroke-width", "2");
+                    svg.appendChild(t1);
                 }
                 document.getElementById('canvas').appendChild(svg);
             },
             drawTipos(idx) {
                 const layouts = [
-                    {s:"M100,150 L150,110 L200,150", t:[100,150], a:"Primario"},
-                    {s:"M100,150 L150,110 L200,150", t:[150,110], a:"Secundario"},
-                    {s:"M100,150 L150,110 L200,150 M150,110 L150,60", t:[150,110], a:"Terciario"},
+                    {s:"M50,150 L100,110 L150,150 L200,110", t:[50,150], a:"Primario"},
+                    {s:"M50,150 L100,110 L150,150 L200,110", t:[100,110], a:"Secundario"},
+                    {s:"M50,150 L100,110 L150,150 L200,110 M150,150 L150,200", t:[150,150], a:"Terciario"},
                     {s:"M100,110 L150,110 L200,110 M150,110 L150,60 M150,110 L150,160", t:[150,110], a:"Cuaternario"}
                 ];
                 const d = layouts[idx % 4];
-                DB.tipos[idx].ans = d.a;
                 const ns = "http://www.w3.org/2000/svg";
                 const svg = document.createElementNS(ns, "svg");
                 svg.setAttribute("viewBox", "0 0 400 250"); svg.style.width = "85%";
@@ -282,17 +314,20 @@
                 document.getElementById('canvas').appendChild(svg);
             },
             check() {
-                const user = document.getElementById('ans-in').value.toLowerCase().trim().replace(/-/g,'');
-                const corrects = DB.nomen[this.i].ans.map(x => x.toLowerCase().replace(/-/g,''));
-                this.validate(corrects.includes(user) ? DB.nomen[this.i].ans[0] : 'err');
+                const user = document.getElementById('ans-in').value.toLowerCase().trim().replace(/\s+/g, '');
+                const currentData = DB[this.m][this.i % DB[this.m].length];
+                const corrects = currentData.ans.map(x => x.toLowerCase().replace(/\s+/g, ''));
+                this.validate(corrects.includes(user) ? currentData.ans[0] : 'err');
             },
             validate(val) {
-                const d = DB[this.m][this.i];
-                const ok = (this.m === 'nomen') ? val !== 'err' : val === d.ans;
+                const ok = (this.m === 'nomen') ? val !== 'err' : val === DB[this.m][this.i % DB[this.m].length].ans;
                 if(ok) { this.s += 100; this.i++; this.load(); }
                 else { this.v--; if(this.v <= 0) this.end(false); this.upd(); }
             },
-            hint() { if(this.s >= 20) { this.s -= 20; alert(DB[this.m][this.i].hint); this.upd(); } },
+            hint() { 
+                const d = DB[this.m][this.i % DB[this.m].length];
+                if(this.s >= 20) { this.s -= 20; alert(d.hint); this.upd(); } 
+            },
             upd() {
                 document.getElementById('v-val').innerText = this.v;
                 document.getElementById('s-val').innerText = this.s;
@@ -301,10 +336,12 @@
             end(win) {
                 document.getElementById('sc-game').classList.add('hidden');
                 document.getElementById('sc-end').classList.remove('hidden');
-                document.getElementById('feedback').innerText = win ? "¡Excelente! Has dominado este módulo." : "Inténtalo de nuevo. La química requiere práctica.";
+                document.getElementById('feedback').innerText = win ? "¡Impresionante! Eres un maestro de la química orgánica." : "Casi lo logras. Revisa tus apuntes y vuelve a intentar.";
                 document.getElementById('final-score').innerText = this.s;
             }
         };
     </script>
 </body>
+</html>
+
 </html>
